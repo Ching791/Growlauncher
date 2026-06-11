@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="launcher.powerkuy.growlauncher">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+
+    <application
+        android:allowBackup="true"
+        android:extractNativeLibs="true"
+        android:label="Growlauncher"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar">
+
+        <activity
+            android:name="launcher.powerkuy.growlauncher.MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.rtsoft.growtopia.Main"
+            android:exported="true"
+            android:launchMode="singleTask" />
+
+        <service
+            android:name="launcher.powerkuy.growlauncher.luamanager.LuaManager"
+            android:exported="false"
+            android:foregroundServiceType="specialUse" />
+
+        <service
+            android:name="powerkuy.modmenu.Floating"
+            android:exported="false" />
+    </application>
+</manifest>
