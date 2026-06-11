@@ -59,8 +59,26 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    fun register(email: String, password: String) {
+        viewModelScope.launch {
+            _authState.update { it.copy(isLoading = true) }
+            val result = authRepository.register(email, password)
+            if (result.isSuccess) {
+                _authState.update { AuthUiState(isAuthenticated = true, isLoading = false) }
+                _errorMessage.value = null
+            } else {
+                _authState.update { it.copy(isLoading = false) }
+                _errorMessage.value = result.exceptionOrNull()?.localizedMessage ?: "Registration failed"
+            }
+        }
+    }
+
     fun logout() {
         authRepository.logout()
         _authState.value = AuthUiState(isAuthenticated = false)
+    }
+
+    fun clearError() {
+        _errorMessage.value = null
     }
 }

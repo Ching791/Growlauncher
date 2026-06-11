@@ -25,6 +25,24 @@ class PreferencesManager @Inject constructor(
         authPrefs.edit().remove(KEY_AUTH_TOKEN).apply()
     }
 
+    fun saveAccount(email: String, password: String) {
+        val account = AccountEntry(email = email.trim().lowercase(), password = password)
+        val updatedAccounts = getStoredAccounts().toMutableSet().apply {
+            removeAll { decodeAccountEntry(it)?.email == account.email }
+            add(encodeAccountEntry(account))
+        }
+        userPrefs.edit().putStringSet(KEY_ACCOUNTS, updatedAccounts).apply()
+    }
+
+    fun hasAccount(email: String): Boolean =
+        getStoredAccounts().any { decodeAccountEntry(it)?.email == email.trim().lowercase() }
+
+    fun validateAccount(email: String, password: String): Boolean =
+        getStoredAccounts().any {
+            val account = decodeAccountEntry(it)
+            account?.email == email.trim().lowercase() && account.password == password
+        }
+
     fun saveDarkTheme(enabled: Boolean) {
         userPrefs.edit().putBoolean(KEY_DARK_THEME, enabled).apply()
     }
@@ -64,6 +82,11 @@ class PreferencesManager @Inject constructor(
         val enabled: Boolean
     )
 
+    data class AccountEntry(
+        val email: String,
+        val password: String
+    )
+
     companion object {
         private const val SCRIPT_SEPARATOR = "||"
         private const val KEY_AUTH_TOKEN = "auth_token"
@@ -71,6 +94,7 @@ class PreferencesManager @Inject constructor(
         private const val KEY_ACCENT_THEME = "accent_theme"
         private const val KEY_ROLE = "user_role"
         private const val KEY_SCRIPTS = "scripts"
+        private const val KEY_ACCOUNTS = "accounts"
 
         fun encodeScriptEntry(entry: ScriptEntry): String =
             "${entry.name}$SCRIPT_SEPARATOR${entry.enabled}"
@@ -83,5 +107,20 @@ class PreferencesManager @Inject constructor(
                 enabled = parts[1].toBooleanStrictOrNull() ?: false
             )
         }
+
+        fun encodeAccountEntry(entry: AccountEntry): String =
+            "${entry.email}$SCRIPT_SEPARATOR${entry.password}"
+
+        fun decodeAccountEntry(value: String): AccountEntry? {
+            val parts = value.split(SCRIPT_SEPARATOR, limit = 2)
+            if (parts.size != 2 || parts[0].isBlank()) return null
+            return AccountEntry(
+                email = parts[0],
+                password = parts[1]
+            )
+        }
     }
+
+    private fun getStoredAccounts(): Set<String> =
+        userPrefs.getStringSet(KEY_ACCOUNTS, emptySet()) ?: emptySet()
 }
