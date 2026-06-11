@@ -2,44 +2,57 @@ package com.ching791.growlauncher.data.repositories
 
 import com.ching791.growlauncher.data.models.User
 import com.ching791.growlauncher.data.preferences.PreferencesManager
-import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class AuthRepository @Inject constructor(
-    private val firebaseAuth: FirebaseAuth,
     private val preferencesManager: PreferencesManager
 ) {
     suspend fun login(email: String, password: String): Result<User> = runCatching {
-        require(email.isNotBlank()) { "Email must not be empty" }
+        // TODO: Restore Firebase sign-in when google-services.json is configured.
+        val normalizedEmail = email.trim().lowercase()
+        require(normalizedEmail.isNotBlank()) { "Email must not be empty" }
         require(password.isNotBlank()) { "Password must not be empty" }
+        require(preferencesManager.userExists(normalizedEmail)) { "Account does not exist" }
+        require(preferencesManager.getUserPassword(normalizedEmail) == password) { "Incorrect password" }
 
-        val authResult = firebaseAuth.signInWithEmailAndPassword(email.trim(), password).await()
-        val token = authResult.user?.uid ?: error("Authentication failed")
-        preferencesManager.saveAuthToken(token)
-        val user = User(
-            email = authResult.user?.email ?: email.trim(),
-            displayName = authResult.user?.displayName ?: email.substringBefore('@'),
+        preferencesManager.saveAuthToken(normalizedEmail)
+        User(
+            email = normalizedEmail,
+            displayName = normalizedEmail.substringBefore('@'),
             role = preferencesManager.getRole()
         )
-        user
+    }
+
+    suspend fun register(email: String, password: String): Result<User> = runCatching {
+        // TODO: Replace local account storage with Firebase Auth once enabled.
+        val normalizedEmail = email.trim().lowercase()
+        require(normalizedEmail.isNotBlank()) { "Email must not be empty" }
+        require(password.isNotBlank()) { "Password must not be empty" }
+        require(!preferencesManager.userExists(normalizedEmail)) { "Account already exists" }
+
+        preferencesManager.saveUser(normalizedEmail, password)
+        preferencesManager.saveAuthToken(normalizedEmail)
+        User(
+            email = normalizedEmail,
+            displayName = normalizedEmail.substringBefore('@'),
+            role = preferencesManager.getRole()
+        )
     }
 
     fun currentUser(): User? {
-        val user = firebaseAuth.currentUser ?: return null
+        val email = preferencesManager.getAuthToken() ?: return null
         return User(
-            email = user.email ?: "user@growlauncher.app",
-            displayName = user.displayName ?: (user.email ?: "User").substringBefore('@'),
+            email = email,
+            displayName = email.substringBefore('@'),
             role = preferencesManager.getRole()
         )
     }
 
     fun isAuthenticated(): Boolean = !preferencesManager.getAuthToken().isNullOrBlank()
-
     fun logout() {
-        firebaseAuth.signOut()
+    fun logout() {
         preferencesManager.clearAuthToken()
     }
 }

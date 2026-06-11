@@ -8,9 +8,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ching791.growlauncher.ui.screens.LoginScreen
+import com.ching791.growlauncher.ui.screens.RegisterScreen
 import com.ching791.growlauncher.ui.theme.GrowlauncherTheme
 import com.ching791.growlauncher.viewmodel.AuthViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,7 +26,6 @@ class LoginActivity : ComponentActivity() {
         setContent {
             val themeState by authViewModel.themeState.collectAsStateWithLifecycle()
             val authState by authViewModel.authState.collectAsStateWithLifecycle()
-            val error by authViewModel.errorMessage.observeAsState()
 
             LaunchedEffect(authState.isAuthenticated) {
                 if (authState.isAuthenticated) {
@@ -39,11 +38,41 @@ class LoginActivity : ComponentActivity() {
                 darkTheme = themeState.darkTheme,
                 accent = themeState.accent
             ) {
-                LoginScreen(
-                    isLoading = authState.isLoading,
-                    error = error,
-                    onLogin = authViewModel::login,
-                )
+                if (authState.isLoginMode) {
+                    LoginScreen(
+                        isLoginMode = authState.isLoginMode,
+                        email = authState.email,
+                        password = authState.password,
+                        isLoading = authState.isLoading,
+                        error = authState.errorMessage,
+                        successMessage = authState.successMessage,
+                        onEmailChange = authViewModel::updateEmail,
+                        onPasswordChange = authViewModel::updatePassword,
+                        onLogin = authViewModel::login,
+                        onSwitchToRegister = authViewModel::toggleAuthMode,
+                        onToggleTab = { isLogin ->
+                            if (!isLogin) authViewModel.toggleAuthMode()
+                        }
+                    )
+                } else {
+                    RegisterScreen(
+                        isLoginMode = authState.isLoginMode,
+                        email = authState.email,
+                        password = authState.password,
+                        confirmPassword = authState.confirmPassword,
+                        isLoading = authState.isLoading,
+                        error = authState.errorMessage,
+                        successMessage = authState.successMessage,
+                        onEmailChange = authViewModel::updateEmail,
+                        onPasswordChange = authViewModel::updatePassword,
+                        onConfirmPasswordChange = authViewModel::updateConfirmPassword,
+                        onRegister = authViewModel::register,
+                        onSwitchToLogin = authViewModel::toggleAuthMode,
+                        onToggleTab = { isLogin ->
+                            if (isLogin) authViewModel.toggleAuthMode()
+                        }
+                    )
+                }
             }
         }
     }

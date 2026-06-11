@@ -14,6 +14,7 @@ class PreferencesManager @Inject constructor(
     private val authPrefs: SharedPreferences = context.getSharedPreferences("auth_pref", Context.MODE_PRIVATE)
     private val userPrefs: SharedPreferences = context.getSharedPreferences("user_pref", Context.MODE_PRIVATE)
     private val scriptPrefs: SharedPreferences = context.getSharedPreferences("script_pref", Context.MODE_PRIVATE)
+    private val accountPrefs: SharedPreferences = context.getSharedPreferences("account_pref", Context.MODE_PRIVATE)
 
     fun saveAuthToken(token: String) {
         authPrefs.edit().putString(KEY_AUTH_TOKEN, token).apply()
@@ -23,6 +24,23 @@ class PreferencesManager @Inject constructor(
 
     fun clearAuthToken() {
         authPrefs.edit().remove(KEY_AUTH_TOKEN).apply()
+    }
+
+    fun saveUser(email: String, password: String) {
+        accountPrefs.edit().putString(userKey(email), password).apply()
+    }
+
+    fun getUserPassword(email: String): String? = accountPrefs.getString(userKey(email), null)
+
+    fun userExists(email: String): Boolean = accountPrefs.contains(userKey(email))
+
+    fun getAllUsers(): Map<String, String> = accountPrefs.all
+        .filterKeys { it.startsWith(KEY_USER_PREFIX) }
+        .mapKeys { it.key.removePrefix(KEY_USER_PREFIX) }
+        .mapValues { it.value as? String ?: "" }
+
+    fun deleteUser(email: String) {
+        accountPrefs.edit().remove(userKey(email)).apply()
     }
 
     fun saveDarkTheme(enabled: Boolean) {
@@ -66,6 +84,7 @@ class PreferencesManager @Inject constructor(
 
     companion object {
         private const val SCRIPT_SEPARATOR = "||"
+        private const val KEY_USER_PREFIX = "user_"
         private const val KEY_AUTH_TOKEN = "auth_token"
         private const val KEY_DARK_THEME = "dark_theme"
         private const val KEY_ACCENT_THEME = "accent_theme"
@@ -83,5 +102,7 @@ class PreferencesManager @Inject constructor(
                 enabled = parts[1].toBooleanStrictOrNull() ?: false
             )
         }
+
+        private fun userKey(email: String): String = "$KEY_USER_PREFIX${email.trim().lowercase()}"
     }
 }

@@ -3,7 +3,7 @@
 Modern Android launcher app built with Kotlin + Jetpack Compose.
 
 ## Features
-- Firebase Authentication flow with SharedPreferences session persistence
+- Local Login/Register authentication with SharedPreferences account storage
 - Main launcher dashboard with Growtopia launcher integration (`grow://`)
 - Script manager (add/toggle/delete scripts)
 - Settings and real-time theme picker (dark/light + purple/blue/green)
@@ -24,9 +24,8 @@ app/src/main/java/com/ching791/growlauncher/
 ```
 
 ## Setup
-1. Add your Firebase `google-services.json` into `app/`.
-2. Sync in Android Studio Iguana+.
-3. Build and run on Android 7.0+ (API 24).
+1. Sync in Android Studio Iguana+.
+2. Build and run on Android 7.0+ (API 24).
 
 ## Notes
 - Growtopia launch target package: `com.rtsoft.growtopia`

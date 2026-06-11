@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,9 +17,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 
@@ -27,17 +28,19 @@ private val ErrorRed = Color(0xFFFF6B6B)
 private val SuccessGreen = Color(0xFF4CAF50)
 
 @Composable
-fun LoginScreen(
+fun RegisterScreen(
     isLoginMode: Boolean,
     email: String,
     password: String,
+    confirmPassword: String,
     isLoading: Boolean,
     error: String?,
     successMessage: String?,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
-    onLogin: () -> Unit,
-    onSwitchToRegister: () -> Unit,
+    onConfirmPasswordChange: (String) -> Unit,
+    onRegister: () -> Unit,
+    onSwitchToLogin: () -> Unit,
     onToggleTab: (Boolean) -> Unit
 ) {
     Column(
@@ -48,10 +51,10 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        AuthModeTabs(isLoginMode = isLoginMode, onToggleTab = onToggleTab)
+        RegisterModeTabs(isLoginMode = isLoginMode, onToggleTab = onToggleTab)
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Growlauncher Login", color = Color.White)
+        Text("Create Account", color = Color.White)
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
@@ -60,13 +63,7 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth(),
             label = { Text("Email", color = Color.White) },
             singleLine = true,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = PurpleAccent,
-                unfocusedBorderColor = PurpleAccent.copy(alpha = 0.7f),
-                cursorColor = PurpleAccent,
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White
-            )
+            colors = fieldColors()
         )
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -77,18 +74,28 @@ fun LoginScreen(
             label = { Text("Password", color = Color.White) },
             visualTransformation = PasswordVisualTransformation(),
             singleLine = true,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = PurpleAccent,
-                unfocusedBorderColor = PurpleAccent.copy(alpha = 0.7f),
-                cursorColor = PurpleAccent,
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White
-            )
+            colors = fieldColors()
+        )
+        Text(
+            text = if (password.length >= 6) "Password strength: Good" else "Password strength: Minimum 6 characters",
+            color = if (password.length >= 6) SuccessGreen else Color.White.copy(alpha = 0.8f),
+            modifier = Modifier.align(Alignment.Start).padding(top = 6.dp)
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedTextField(
+            value = confirmPassword,
+            onValueChange = onConfirmPasswordChange,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Confirm Password", color = Color.White) },
+            visualTransformation = PasswordVisualTransformation(),
+            singleLine = true,
+            colors = fieldColors()
         )
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedButton(
-            onClick = onLogin,
+            onClick = onRegister,
             enabled = !isLoading,
             colors = ButtonDefaults.outlinedButtonColors(
                 containerColor = PurpleAccent,
@@ -96,7 +103,7 @@ fun LoginScreen(
             ),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Login")
+            Text("Create Account")
         }
         if (isLoading) {
             Spacer(modifier = Modifier.height(12.dp))
@@ -113,19 +120,19 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Don't have an account? Register",
+            text = "Already have an account? Login",
             color = PurpleAccent,
-            modifier = Modifier.clickable(onClick = onSwitchToRegister)
+            modifier = Modifier.clickable(onClick = onSwitchToLogin)
         )
     }
 }
 
 @Composable
-private fun AuthModeTabs(
+private fun RegisterModeTabs(
     isLoginMode: Boolean,
     onToggleTab: (Boolean) -> Unit
 ) {
-    androidx.compose.foundation.layout.Row(
+    Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -151,3 +158,12 @@ private fun AuthModeTabs(
         }
     }
 }
+
+@Composable
+private fun fieldColors() = OutlinedTextFieldDefaults.colors(
+    focusedBorderColor = PurpleAccent,
+    unfocusedBorderColor = PurpleAccent.copy(alpha = 0.7f),
+    cursorColor = PurpleAccent,
+    focusedTextColor = Color.White,
+    unfocusedTextColor = Color.White
+)
