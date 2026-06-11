@@ -52,7 +52,6 @@ class AuthRepository @Inject constructor(
 
     fun isAuthenticated(): Boolean = !preferencesManager.getAuthToken().isNullOrBlank()
     fun logout() {
-    fun logout() {
         preferencesManager.clearAuthToken()
     }
 }
