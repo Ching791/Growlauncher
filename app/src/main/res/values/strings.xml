@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Growlauncher</string>
+    <string name="growtopia_version">Growtopia version: %1$s</string>
+    <string name="user_email">User: %1$s</string>
+    <string name="user_role">Role: %1$s</string>
+    <string name="script_hub_placeholder">Script Hub placeholder (ready for your ImGui mod menu integration).</string>
+    <string name="switch_account_placeholder">Switch account flow placeholder.</string>
+    <string name="customize_title">Customize</string>
+    <string name="customize_placeholder">Customize/settings panel placeholder.</string>
+    <string name="loading_info">Launching Growtopia for %1$s…</string>
+    <string name="growtopia_not_packaged">Growtopia main activity is not packaged yet.</string>
+</resources>
