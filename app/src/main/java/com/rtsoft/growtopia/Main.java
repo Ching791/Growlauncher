@@ -27,6 +27,14 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public class Main extends SharedActivity {
+    static {
+        try {
+            System.loadLibrary("PowerKuy");
+        } catch (UnsatisfiedLinkError e) {
+            // libPowerKuy.so not present - safe to skip
+        }
+    }
+
     public static boolean OriginalKeyboard = false;
     public static boolean block_pause;
     public static HelpShiftManager helpshiftManager;
@@ -39,7 +47,7 @@ public class Main extends SharedActivity {
     public IronSourceManager ironSourceManager = new IronSourceManager(this);
     public WebViewManager webViewManager = new WebViewManager(this);
     public AppReviewManager appReviewManager = new AppReviewManager(this);
-    public FirebaseCrashlyticsManager firebaseCrashlyticsManager = new FirebaseCrashlyticsManager();
+    public FirebaseCrashlyticsManager firebaseCrashlyticsManager;
     public FirebaseCloudMessageManager firebaseCloudMessageManager = new FirebaseCloudMessageManager();
     public GoogleSignInHelper googleSignInHelper = new GoogleSignInHelper(this);
     public MAFManager mafManager = new MAFManager(this);
@@ -49,13 +57,12 @@ public class Main extends SharedActivity {
     public static AppReviewManager GetAppReviewManager() { return mainApp.appReviewManager; }
     public static AppsFlyerManager GetAppsflyerManager() { return mainApp.appsflyerManager; }
     public static FirebaseCloudMessageManager GetFirebaseCloudMessageManager() { return mainApp.firebaseCloudMessageManager; }
-    public static FirebaseCrashlyticsManager GetFirebaseCrashlyticsManager() { return new FirebaseCrashlyticsManager(); }
+    public static FirebaseCrashlyticsManager GetFirebaseCrashlyticsManager() { return mainApp.firebaseCrashlyticsManager; }
     public static GoogleSignInHelper GetGoogleSignInHelper() { return mainApp.googleSignInHelper; }
     public static Object GetHelpShiftManager() { return helpshiftManager; }
     public static Object GetIronSourceManager() { return mainApp.ironSourceManager; }
     public static MAFManager GetMAFManager() { return mainApp.mafManager; }
     public static UsercentricsManager GetUsercentricsManager() {
-        if (mainApp == null || mainApp.usercentricsManager == null) return new UsercentricsManager(null);
         return mainApp.usercentricsManager;
     }
     public static WebViewManager GetWebViewManager() { return mainApp.webViewManager; }
@@ -107,6 +114,14 @@ public class Main extends SharedActivity {
     @Override
     public String GetAppsflyerUID() { return ""; }
 
+    public int getBottomCutoutHeight() {
+        android.view.WindowInsets rootWindowInsets = getWindow().getDecorView().getRootWindowInsets();
+        if (rootWindowInsets == null || Build.VERSION.SDK_INT < 30) {
+            return 0;
+        }
+        return rootWindowInsets.getInsets(WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout()).bottom;
+    }
+
     public void OnKeyboardHeightChanged(int height) {
         if (OriginalKeyboard) {
             if (this.webViewManager.IsVisible()) {
@@ -114,11 +129,14 @@ public class Main extends SharedActivity {
                 return;
             }
             SharedActivity.m_KeyBoardHeight = height;
-            boolean keyboardOpen = height > 0;
+            boolean keyboardOpen = height > getBottomCutoutHeight();
+            Log.d("NIRMAN", "Keyboard height = " + SharedActivity.m_KeyBoardHeight);
             if (keyboardOpen && !SharedActivity.m_editText.isFocused()) {
+                Log.d("NIRMAN", "KeyboardX opening...");
                 UpdateEditBoxInView(true, false);
             } else if (!keyboardOpen && SharedActivity.m_editText.isFocused()) {
                 OriginalKeyboard = false;
+                Log.d("NIRMAN", "KeyboardX closing...");
                 SharedActivity.nativeOnInputText(SharedActivity.m_editText.getText().toString());
                 if (!SharedActivity.passwordField) {
                     SharedActivity.nativeOnKey(1, 500000, 0);
@@ -173,7 +191,6 @@ public class Main extends SharedActivity {
         SharedActivity.IAPEnabled = true;
         SharedActivity.HookedEnabled = false;
         SharedActivity.PackageName = BuildConfig.APPLICATION_ID;
-        this.usercentricsManager = new UsercentricsManager(this);
         System.loadLibrary("growtopia");
 
         super.onCreate(savedInstanceState);
@@ -187,13 +204,15 @@ public class Main extends SharedActivity {
             getResources().updateConfiguration(config, getResources().getDisplayMetrics());
         }
 
-        a.a(this); // Ubisoft bridge init (matching real Growlauncher)
+        a.a(this); // Ubisoft bridge init
 
         this.heightProvider = new HeightProvider(this).setHeightListener(height -> {
             OnKeyboardHeightChanged(height);
         });
 
+        this.firebaseCrashlyticsManager = new FirebaseCrashlyticsManager(this);
         initialize(savedInstanceState);
+        this.usercentricsManager = new UsercentricsManager(this);
         getWindow().addFlags(128); // FLAG_KEEP_SCREEN_ON
 
         applyImmersiveFullscreen();

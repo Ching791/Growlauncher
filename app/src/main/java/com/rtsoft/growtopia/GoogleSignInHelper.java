@@ -14,4 +14,5 @@ public class GoogleSignInHelper {
     public void Init() {}
     public void SignIn() {}
     public void SignOut() {}
+    public void handleSignInResult(int requestCode, int resultCode, android.content.Intent data) {}
 }

@@ -1,7 +1,6 @@
 package com.rtsoft.growtopia;
 
 import android.app.Activity;
-import android.opengl.GLSurfaceView;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,57 +12,26 @@ public class UsercentricsManager {
     }
 
     public void CheckConsentState() {
-        final List<Object> result = new ArrayList();
-        // Post callback to GL thread on next frame (like real Usercentrics SDK would)
-        if (SharedActivity.mGLView != null) {
-            SharedActivity.mGLView.queueEvent(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        OnConsentFetchedSuccess(result);
-                    } catch (UnsatisfiedLinkError e) {
-                        // Native method not in official libgrowtopia.so — use nativeSendGUIEx fallback
-                        android.util.Log.w("UsercentricsManager", "OnConsentFetchedSuccess native not found, using fallback");
-                        SharedActivity.nativeSendGUIEx(0, 0, 0, 0);
-                    }
-                }
-            });
-        } else {
-            try {
-                OnConsentFetchedSuccess(result);
-            } catch (UnsatisfiedLinkError e) {
-                android.util.Log.w("UsercentricsManager", "OnConsentFetchedSuccess native not found");
-            }
-        }
+        OnConsentFetchedSuccess(new ArrayList());
     }
 
     public void FetchUserConsent(List<Object> list) {
-        final List<Object> result = list;
-        if (SharedActivity.mGLView != null) {
-            SharedActivity.mGLView.queueEvent(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        OnConsentFetchedSuccess(result);
-                    } catch (UnsatisfiedLinkError e) {
-                        android.util.Log.w("UsercentricsManager", "OnConsentFetchedSuccess native not found");
-                    }
-                }
-            });
-        } else {
-            try {
-                OnConsentFetchedSuccess(result);
-            } catch (UnsatisfiedLinkError e) {
-                android.util.Log.w("UsercentricsManager", "OnConsentFetchedSuccess native not found");
-            }
-        }
+        OnConsentFetchedSuccess(list);
     }
 
-    public native void OnConsentFetchedFail(int code, String message);
+    public native void OnConsentFetchedFail(int i10, String str);
+
     public native void OnConsentFetchedSuccess(List<Object> list);
 
-    public void RequestConsentSettings() {}
-    public void ShowConsentSettings() {}
-    public void InitWithRuleSet(String ruleSet) {}
-    public void InitWithSettings(String settings) {}
+    public void RequestConsentSettings() {
+    }
+
+    public void ShowConsentSettings() {
+    }
+
+    public void InitWithRuleSet(String str) {
+    }
+
+    public void InitWithSettings(String str) {
+    }
 }
