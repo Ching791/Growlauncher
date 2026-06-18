@@ -22,6 +22,7 @@
 *.dylib
 *.dll
 *.so.*
+!app/src/main/jniLibs/**/*.so
 
 
 # Fortran module files
@@ -57,6 +58,8 @@ compile_commands.json
 *.log
 *.bak
 *.swp
+.gradle/
+local.properties
 
 # vcpkg
 vcpkg_installed/
