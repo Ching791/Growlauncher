@@ -1,2 +1,2 @@
 # Growlauncher
-Modern Android Growlauncher launcher built with Kotlin &amp; Jetpack Compose
+Android launcher package (`com.gentz.launcher`) prepared for packaging Growtopia arm64 native libraries and assets in a single APK.

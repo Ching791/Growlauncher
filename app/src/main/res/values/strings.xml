@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Growlauncher</string>
+    <string name="brand_name">The Rare Owl</string>
+    <string name="app_info">Growtopia version: packaged\nUser: user@example.com\nRole: Launcher User</string>
+</resources>
