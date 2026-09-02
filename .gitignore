@@ -19,6 +19,7 @@
 
 # Compiled Dynamic libraries
 *.so
+!app/src/main/jniLibs/**/*.so
 *.dylib
 *.dll
 *.so.*
@@ -43,6 +44,7 @@
 build/
 Build/
 build-*/
+.gradle/
 
 # CMake generated files
 CMakeFiles/
@@ -67,3 +69,7 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+local.properties
+
+# Native build intermediates
+app/.cxx/
